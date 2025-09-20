@@ -8,19 +8,19 @@ function BlogDetail() {
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
-  const [replyTo, setReplyTo] = useState(null); // for nested replies
+  const [replyTo, setReplyTo] = useState(null); // parent comment ID
 
   // Fetch Post
   const fetchPost = async () => {
     try {
-      const res = await api.get(`api/posts/${id}`);
+      const res = await api.get(`/api/posts/${id}`);
       setPost(res.data);
     } catch (err) {
       console.error("Error fetching post", err);
     }
   };
 
-  // Fetch Comments for this post only
+  // Fetch Comments
   const fetchComments = async () => {
     try {
       const res = await api.get(`/api/comments?postId=${id}`);
@@ -37,31 +37,51 @@ function BlogDetail() {
 
     const token = localStorage.getItem("token");
     if (!token) {
-      navigate("/login"); // ✅ Redirect if not logged in
+      navigate("/login"); // redirect if not logged in
       return;
     }
 
     try {
-      const res = await api.post(
+      await api.post(
         `/api/comments`,
         {
           content: newComment,
           postId: id,
           parentId: replyTo, // null if top-level
         },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setComments([...comments, res.data]);
+      await fetchComments(); // refresh comments
       setNewComment("");
       setReplyTo(null);
     } catch (err) {
       console.error("Error creating comment", err);
       if (err.response?.status === 401) {
         localStorage.removeItem("token");
-        navigate("/login"); // ✅ Redirect if Unauthorized
+        navigate("/login");
+      }
+    }
+  };
+
+  // Delete Comment
+  const handleDelete = async (commentId) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      await api.delete(`/api/comments/${commentId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      await fetchComments(); // refresh comments
+    } catch (err) {
+      console.error("Error deleting comment", err);
+      if (err.response?.status === 401) {
+        localStorage.removeItem("token");
+        navigate("/login");
       }
     }
   };
@@ -71,7 +91,7 @@ function BlogDetail() {
     fetchComments();
   }, [id]);
 
-  // Build Nested Comments Tree
+  // Build Nested Tree
   const buildTree = (list, parentId = null) =>
     list
       .filter((c) => c.parentId === parentId)
@@ -79,7 +99,7 @@ function BlogDetail() {
 
   const commentTree = buildTree(comments);
 
-  // Recursive Component
+  // Recursive Comment Component
   const CommentItem = ({ comment }) => (
     <div className="ml-4 mt-3 border-l pl-4">
       <p className="font-semibold text-sm text-blue-600">
@@ -101,33 +121,12 @@ function BlogDetail() {
         </button>
       </div>
 
+      {/* Render Nested Replies */}
       {comment.children?.map((child) => (
         <CommentItem key={child.id} comment={child} />
       ))}
     </div>
   );
-
-  // Delete Comment
-  const handleDelete = async (commentId) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login"); // ✅ Redirect if not logged in
-      return;
-    }
-
-    try {
-      await api.delete(`/api/comments/${commentId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setComments(comments.filter((c) => c.id !== commentId));
-    } catch (err) {
-      console.error("Error deleting comment", err);
-      if (err.response?.status === 401) {
-        localStorage.removeItem("token");
-        navigate("/login"); // ✅ Redirect if Unauthorized
-      }
-    }
-  };
 
   if (!post) return <p className="text-center mt-10">Loading...</p>;
 
@@ -166,7 +165,14 @@ function BlogDetail() {
       <form onSubmit={handleCommentSubmit} className="flex gap-2 mt-6">
         <input
           type="text"
-          placeholder={replyTo ? "Replying..." : "Write a comment..."}
+          placeholder={
+            replyTo
+              ? `Replying to ${
+                  comments.find((c) => c.id === replyTo)?.author?.name ||
+                  "Anonymous"
+                }...`
+              : "Write a comment..."
+          }
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
           className="flex-1 border px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400"
