@@ -71,7 +71,7 @@ function Register() {
               placeholder="John Doe"
               value={form.name}
               onChange={handleChange}
-              className="mt-1 w-full border px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              className="mt-1 w-full border text-black px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
             />
           </div>
 
@@ -85,7 +85,7 @@ function Register() {
               placeholder="example@email.com"
               value={form.email}
               onChange={handleChange}
-              className="mt-1 w-full border px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              className="mt-1 w-full border text-black px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
             />
           </div>
 
@@ -99,14 +99,14 @@ function Register() {
               placeholder="********"
               value={form.password}
               onChange={handleChange}
-              className="mt-1 w-full border px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              className="mt-1 w-full text-black border px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-70"
+            className="w-full bg-blue-600 text-black py-3 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-70"
           >
             {loading ? "Registering..." : "Register"}
           </button>
