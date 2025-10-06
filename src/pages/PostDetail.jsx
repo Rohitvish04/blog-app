@@ -23,46 +23,42 @@ function BlogDetail() {
   // Fetch Comments
   const fetchComments = async () => {
     try {
-      const res = await api.get(`/api/comments?postId=${id}`);
+      const res = await api.get(`/api/posts/${id}/comments`);
       setComments(res.data);
     } catch (err) {
       console.error("Error fetching comments", err);
     }
   };
 
-  // Create Comment
-  const handleCommentSubmit = async (e) => {
-    e.preventDefault();
-    if (!newComment.trim()) return;
+// Create Comment
+const handleCommentSubmit = async (e) => {
+  e.preventDefault();
+  if (!newComment.trim()) return;
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login"); // redirect if not logged in
-      return;
+  const token = localStorage.getItem("token");
+  if (!token) {
+    navigate("/login");
+    return;
+  }
+
+  try {
+    await api.post(`api/posts/${id}/comments`, {
+      content: newComment,
+      parentId: replyTo,  // null if top-level
+    });
+
+    await fetchComments();
+    setNewComment("");
+    setReplyTo(null);
+  } catch (err) {
+    console.error("Error creating comment", err);
+    if (err.response?.status === 401) {
+      localStorage.removeItem("token");
+      navigate("/login");
     }
+  }
+};
 
-    try {
-      await api.post(
-        `/api/comments`,
-        {
-          content: newComment,
-          postId: id,
-          parentId: replyTo, // null if top-level
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      await fetchComments(); // refresh comments
-      setNewComment("");
-      setReplyTo(null);
-    } catch (err) {
-      console.error("Error creating comment", err);
-      if (err.response?.status === 401) {
-        localStorage.removeItem("token");
-        navigate("/login");
-      }
-    }
-  };
 
   // Delete Comment
   const handleDelete = async (commentId) => {
