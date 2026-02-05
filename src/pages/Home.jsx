@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import api from "../api/api";
 
 function Home() {
   const [posts, setPosts] = useState([]);
-  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Get search query from URL
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const searchQuery = queryParams.get("q") || "";
+
+  // Local state for filtering (so we can filter instantly)
+  const [search, setSearch] = useState(searchQuery);
 
   // Fetch posts
   const fetchPosts = async () => {
@@ -25,6 +32,11 @@ function Home() {
     fetchPosts();
   }, []);
 
+  // Update search when query param changes
+  useEffect(() => {
+    setSearch(searchQuery);
+  }, [searchQuery]);
+
   const filteredPosts = posts.filter(
     (p) =>
       p.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -33,35 +45,6 @@ function Home() {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      {/* Search Bar */}
-      <div className="mb-8 flex justify-center">
-        <div className="relative w-full md:w-1/2">
-          <input
-            type="text"
-            placeholder="Search posts..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            aria-label="Search posts"
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 pl-10 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-          />
-          <svg
-            className="w-5 h-5 text-gray-400 absolute left-3 top-3 pointer-events-none"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-4.35-4.35m0 0a7.5 7.5 0 11-10.61-10.61 7.5 7.5 0 0110.61 10.61z"
-            />
-          </svg>
-        </div>
-      </div>
-
-      {/* Posts List */}
       {loading ? (
         <div className="flex justify-center py-20">
           <svg
@@ -99,7 +82,6 @@ function Home() {
               tabIndex={0}
               aria-label={`View post titled ${post.title}`}
             >
-              {/* Thumbnail or Placeholder */}
               {post.thumbnail ? (
                 <img
                   src={post.thumbnail}
