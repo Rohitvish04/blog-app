@@ -6,15 +6,13 @@ function Navbar() {
   const { user, logout } = useContext(AuthContext);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-
   return (
-    <nav className="bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-between sticky top-0 z-30">
-      {/* Left: Hamburger + Logo */}
-      <div className="flex items-center space-x-4">
-        {/* Hamburger - visible on mobile */}
+    <nav className="bg-white border-b border-gray-200 px-8 py-3 flex items-center justify-between sticky top-0 z-30">
+      {/* Left side: Hamburger (mobile only) + Logo */}
+      <div className="flex items-center space-x-6">
+        {/* Hamburger button - visible only on mobile */}
         <button
-          onClick={toggleMenu}
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
           aria-label="Open menu"
           className="md:hidden p-2 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-600"
         >
@@ -36,30 +34,29 @@ function Navbar() {
         {/* Logo */}
         <Link
           to="/"
-          className="text-2xl font-serif font-semibold text-gray-900 whitespace-nowrap"
+          className="text-3xl font-serif font-semibold text-gray-900 whitespace-nowrap"
         >
           Medium
         </Link>
       </div>
 
-      {/* Center: Search bar - hidden on mobile, visible on md+ */}
-      <div className="hidden md:flex flex-1 max-w-lg mx-6">
+      {/* Center: Search bar */}
+      <div className="hidden md:flex flex-1 max-w-2xl mx-12">
         <input
           type="search"
           placeholder="Search"
-          className="w-full px-4 py-2 rounded-full border border-gray-300 bg-gray-100 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+          className="w-full px-5 py-3 rounded-full border border-gray-300 bg-gray-100 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
           aria-label="Search"
         />
       </div>
 
-      {/* Right: Icons & buttons */}
-      <div className="flex items-center space-x-4">
-        {/* Write icon + text */}
+      {/* Right side: Write, Notifications, Profile */}
+      <div className="flex items-center space-x-8">
+        {/* Write button */}
         <Link
-          to="/write"
+          to="/dashboard"
           className="hidden md:flex items-center text-gray-700 font-semibold hover:text-gray-900"
         >
-          {/* Pencil icon */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="w-5 h-5 mr-1"
@@ -77,26 +74,7 @@ function Navbar() {
           Write
         </Link>
 
-        {/* Search icon for mobile */}
-        <button
-          className="md:hidden p-2 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-600"
-          aria-label="Search"
-        >
-          <svg
-            className="w-6 h-6 text-gray-700"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            viewBox="0 0 24 24"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-        </button>
-
-        {/* Notification bell icon */}
+        {/* Notification bell */}
         <button
           className="p-2 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-600"
           aria-label="Notifications"
@@ -117,7 +95,7 @@ function Navbar() {
           </svg>
         </button>
 
-        {/* Profile avatar */}
+        {/* Profile avatar or Sign in */}
         {user ? (
           <Link
             to="/profile"
@@ -135,9 +113,6 @@ function Navbar() {
           </Link>
         )}
       </div>
-
-      {/* Mobile menu sidebar or dropdown can be implemented here */}
-      {/* You can toggle rendering based on isMenuOpen state */}
     </nav>
   );
 }
