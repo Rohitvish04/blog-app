@@ -42,7 +42,7 @@ function PostForm({ setPosts }) {
 
       <button
         type="submit"
-        className="w-full sm:w-auto bg-green-600 text-white px-6 py-3 rounded font-semibold hover:bg-green-700 transition"
+        className="w-full sm:w-auto bg-green-600 px-6 py-3 rounded font-semibold hover:bg-green-700 transition"
       >
         Create Post
       </button>
